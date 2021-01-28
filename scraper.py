@@ -4,6 +4,7 @@ import sys
 # from selenium.webdriver.common.keys import Keys
 # from selenium.webdriver.support import expected_conditions as EC
 # from selenium.webdriver.support.ui import WebDriverWait
+# LINK NTI TESTES: https://kiss.ufop.br:8181/Almoxarifado/?idUsuario=47c37828e7eab47a28f696980b69803a&frs=0.9704407878468361
 
 notaEmpenho = '2020NE800689'
 notaFiscal = '000162108'
