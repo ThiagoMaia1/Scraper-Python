@@ -1,5 +1,8 @@
 import time
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import sys
 # from selenium.webdriver.common.keys import Keys
 # from selenium.webdriver.support import expected_conditions as EC
@@ -9,8 +12,7 @@ import sys
 notaEmpenho = '2020NE800689'
 notaFiscal = '000162108'
 dataNF = '14/01/2021'
-valor = 117060
-
+valor = 117060.0
 
 def selecionarElemento(id, selector = False):
     def suprimir(func):
@@ -43,38 +45,66 @@ def inserir(id, valor, selector = False):
     input.send_keys(valor)
     return input
 
-driver = webdriver.Chrome()  # Optional argument, if not specified will search path.
+options = webdriver.ChromeOptions()
+options.add_experimental_option("prefs", {
+  "download.default_directory": r"C:\\Users\\UFOP\Desktop\\NEs\\",
+  "download.prompt_for_download": False,
+  "download.directory_upgrade": True,
+  "safebrowsing.enabled": True
+})
+driver = webdriver.Chrome(options=options)
 driver.get('https://zeppelin10.ufop.br/minhaUfop/desktop/login.xhtml')
-# time.sleep(5) # Let the user actually see something!
 inserir('formLogin:inputIdentificacao', '416.810.188-61')
 inserir('formLogin:inputSenha', '0327')
 click_id('.ui-button-text.ui-c')
 click_id('formPrincipal:grupos:7:j_idt22_header')
 click_id('#formPrincipal .ui-panelgrid-cell.ui-grid-col-8 li:first-child a')
-# print(driver.find_element_by_css_selector('.ui-button-text.ui-c'))
 driver.switch_to.window(driver.window_handles[1])
+
+### CADASTRAR NOTA ###
+
 click_id('sd1')
 click_id('#barra > a:first-of-type')
 inserir('formTemplate:empenho', notaEmpenho)
 click_id('//input[@id="formTemplate:empenho"]/following-sibling::a')
-# click_id('sd2')
 inserir('formTemplate:j_id52', notaFiscal, 'name')
 inserir('formTemplate:j_id56', dataNF.replace('/', ''), 'name')
-time.sleep(1)
-checkBoxes = driver.find_elements_by_css_selector('tbody .check_table input[type="checkbox"')
 
-for c in checkBoxes:
-    c.click()
+# checkBoxes = driver.find_elements_by_css_selector('')
+
+for i in range(500):
+    selectorCheckbox = (By.NAME, 'formTemplate:lista:%s:j_id64' % i)
+    try: driver.find_element(*selectorCheckbox)
+    except: break
+    checkBox = WebDriverWait(driver, 10).until(EC.element_to_be_clickable(selectorCheckbox))
+    checkBox.click()
+    time.sleep(0.5)
+
+
+time.sleep(1)
+
+strValorNTI = selecionarElemento('formTemplate:lista:totalNota').get_attribute('value')
+valorNTI = strValorNTI.split(' ')[-1]
+if valor != valorNTI: 
+    print(strValorNTI, valorNTI, valor)
+    print('Valor não bate')
+    sys.exit(0)
 click_id('formTemplate:salvar')
 
-valorNTI = selecionarElemento('formTemplate:lista:totalNota').get_attribute('value').split(' ')[-1]
-if valor != valorNTI: 
-    driver.alert('Valor não bate')
-    sys.exit(0)
-
 campos = driver.find_elements_by_css_selector('#conteudo tbody span.campo')
-ano = campos[0].getAttribute('innerText')
-numeroNTI = campos[1].getAttribute('innerText')
+ano = campos[0].get_attribute('innerText')
+numeroNTI = campos[1].get_attribute('innerText')  
 
-driver.alert(ano, numeroNTI)
+print(ano, numeroNTI)
+
+click_id('//*[@title="Imprimir Nota Fiscal"]')
+
+### Cadastrar 
+
+# ano = 2021
+# nota = 30
+
+click_id('sd2')
+
+
 time.sleep(60)
