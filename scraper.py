@@ -1,8 +1,11 @@
 import time
+from typing import Pattern
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
+import re
 import sys
 # from selenium.webdriver.common.keys import Keys
 # from selenium.webdriver.support import expected_conditions as EC
@@ -59,52 +62,75 @@ inserir('formLogin:inputSenha', '0327')
 click_id('.ui-button-text.ui-c')
 click_id('formPrincipal:grupos:7:j_idt22_header')
 click_id('#formPrincipal .ui-panelgrid-cell.ui-grid-col-8 li:first-child a')
-driver.switch_to.window(driver.window_handles[1])
 
-### CADASTRAR NOTA ###
+# ### CADASTRAR NOTA ###
 
-click_id('sd1')
-click_id('#barra > a:first-of-type')
-inserir('formTemplate:empenho', notaEmpenho)
-click_id('//input[@id="formTemplate:empenho"]/following-sibling::a')
-inserir('formTemplate:j_id52', notaFiscal, 'name')
-inserir('formTemplate:j_id56', dataNF.replace('/', ''), 'name')
+# click_id('sd1')
+# click_id('#barra > a:first-of-type')
+# inserir('formTemplate:empenho', notaEmpenho)
+# click_id('//input[@id="formTemplate:empenho"]/following-sibling::a')
+# inserir('formTemplate:j_id52', notaFiscal, 'name')
+# inserir('formTemplate:j_id56', dataNF.replace('/', ''), 'name')
 
-# checkBoxes = driver.find_elements_by_css_selector('')
+# # checkBoxes = driver.find_elements_by_css_selector('')
 
-for i in range(500):
-    selectorCheckbox = (By.NAME, 'formTemplate:lista:%s:j_id64' % i)
-    try: driver.find_element(*selectorCheckbox)
-    except: break
-    checkBox = WebDriverWait(driver, 10).until(EC.element_to_be_clickable(selectorCheckbox))
-    checkBox.click()
-    time.sleep(0.5)
+# for i in range(500):
+#     selectorCheckbox = (By.NAME, 'formTemplate:lista:%s:j_id64' % i)
+#     try: driver.find_element(*selectorCheckbox)
+#     except: break
+#     checkBox = WebDriverWait(driver, 10).until(EC.element_to_be_clickable(selectorCheckbox))
+#     checkBox.click()
+#     time.sleep(0.5)
 
 
-time.sleep(1)
+# time.sleep(1)
 
-strValorNTI = selecionarElemento('formTemplate:lista:totalNota').get_attribute('value')
-valorNTI = strValorNTI.split(' ')[-1]
-if valor != valorNTI: 
-    print(strValorNTI, valorNTI, valor)
-    print('Valor não bate')
-    sys.exit(0)
-click_id('formTemplate:salvar')
+# strValorNTI = selecionarElemento('formTemplate:lista:totalNota').get_attribute('value')
+# valorNTI = strValorNTI.split(' ')[-1]
+# if valor != valorNTI: 
+#     print(strValorNTI, valorNTI, valor)
+#     print('Valor não bate')
+#     sys.exit(0)
+# click_id('formTemplate:salvar')
 
-campos = driver.find_elements_by_css_selector('#conteudo tbody span.campo')
-ano = campos[0].get_attribute('innerText')
-numeroNTI = campos[1].get_attribute('innerText')  
+# campos = driver.find_elements_by_css_selector('#conteudo tbody span.campo')
+# ano = campos[0].get_attribute('innerText')
+# numeroNTI = campos[1].get_attribute('innerText')  
 
-print(ano, numeroNTI)
+# print(ano, numeroNTI)
 
-click_id('//*[@title="Imprimir Nota Fiscal"]')
+# click_id('//*[@title="Imprimir Nota Fiscal"]')
 
 ### Cadastrar 
 
-# ano = 2021
-# nota = 30
+ano = 2021
+nota = 30
 
-click_id('sd2')
+driver.switch_to.window(driver.window_handles[0])
+click_id('.ui-dialog-titlebar-icon.ui-dialog-titlebar-close.ui-corner-all .ui-icon.ui-icon-closethick')
+click_id('formPrincipal:grupos:0:j_idt27')
+time.sleep(1)
+click_id('#formPrincipal\\:painelArea_content li:first-child a')
+driver.switch_to.window(driver.window_handles[2])
+time.sleep(2)
+inserir('txtPesquisaRapida', notaEmpenho)
+inserir('txtPesquisaRapida', Keys.ENTER)
+resultadosSEI = driver.find_elements_by_css_selector('td.resTituloEsquerda')
 
+for r in resultadosSEI:
+    pattern = re.compile("Orçamento")
+    if pattern.search(r.get_attribute('innerText')) is not None:
+        r.find_element_by_css_selector('.arvore').click()
+        break
+        
+time.sleep(1)
+click_id('#topmenu a:first-child')
+click_id('#divArvoreAcoes > a:nth-child(2')
 
-time.sleep(60)
+click_id('#divArvoreAcoes > a:first-child')
+click_id('#tblSeries > tbody > tr:first-child')
+
+# click_id('sd2')
+
+# time.sleep(60)
+# driver.close()
